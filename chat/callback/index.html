@@ -1,0 +1,39 @@
+<!doctype html>
+<!-- Published by the deliar service (server/deliar/site/ in human-in-the-loop).
+     Edits here are overwritten on its next push; change them there.
+
+     Google sign-in returns here (the one address registered with Google), and
+     this page hands the answer on to the chat's current address — the one in
+     ../endpoint.json, and no other, so this is not an open redirect. What it
+     forwards is useless elsewhere anyway: the code can only be exchanged with
+     the client secret and the PKCE verifier, both held by the chat service. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<title>Signing in…</title>
+<link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+  <h1>Signing in…</h1>
+  <p id="msg">Taking you back to the conversation.</p>
+</main>
+<script>
+const query = location.search;
+fetch("../endpoint.json?t=" + Date.now(), { cache: "no-store" })
+  .then((r) => { if (!r.ok) throw new Error("no endpoint (" + r.status + ")"); return r.json(); })
+  .then((e) => {
+    const u = new URL(e.url);
+    if (u.protocol !== "https:") throw new Error("the endpoint is not https");
+    location.replace(u.origin + "/auth/callback" + query);
+  })
+  .catch((err) => {
+    document.getElementById("msg").textContent =
+      "Could not reach the conversation (" + err.message + "). Go back and sign in again in a minute.";
+  });
+</script>
+</body>
+</html>

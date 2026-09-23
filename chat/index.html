@@ -1,0 +1,34 @@
+<!doctype html>
+<!-- Published by the deliar service (server/deliar/site/ in human-in-the-loop).
+     Edits here are overwritten on its next push; change them there. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Talk to Shan Deliar</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>Talk to Shan Deliar</h1>
+  <p id="msg">Finding the conversation…</p>
+</main>
+<script>
+// The chat runs on a machine whose public address can change; the deliar
+// service keeps endpoint.json pointing at it. The query string gets past the
+// ten-minute CDN cache.
+fetch("endpoint.json?t=" + Date.now(), { cache: "no-store" })
+  .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
+  .then((e) => {
+    const u = new URL(e.url);
+    if (u.protocol !== "https:") throw new Error("not https");
+    location.replace(u.origin + "/");
+  })
+  .catch(() => {
+    document.getElementById("msg").textContent =
+      "The conversation is not reachable right now. Please try again in a few minutes.";
+  });
+</script>
+</body>
+</html>
