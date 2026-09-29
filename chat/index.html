@@ -18,12 +18,16 @@
 // The chat runs on a machine whose public address can change; the deliar
 // service keeps endpoint.json pointing at it. The query string gets past the
 // ten-minute CDN cache.
+//
+// The hash is carried across, because this page is also where a chat whose
+// address died sends you: landing back on the conversation you were reading
+// is the difference between a redirect and a restart.
 fetch("endpoint.json?t=" + Date.now(), { cache: "no-store" })
   .then((r) => { if (!r.ok) throw new Error(r.status); return r.json(); })
   .then((e) => {
     const u = new URL(e.url);
     if (u.protocol !== "https:") throw new Error("not https");
-    location.replace(u.origin + "/");
+    location.replace(u.origin + "/" + location.hash);
   })
   .catch(() => {
     document.getElementById("msg").textContent =
